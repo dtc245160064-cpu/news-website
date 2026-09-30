@@ -1,0 +1,5 @@
+.env
+*.log
+*.sql
+.DS_Store
+.vscode/
