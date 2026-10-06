@@ -118,11 +118,38 @@ services:
     networks:
       - frontend
 
+  loki:
+    image: grafana/loki:3.6.5
+    container_name: news-loki
+    restart: unless-stopped
+    command: -config.file=/etc/loki/loki-config.yml
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki_data:/loki
+    networks:
+      - frontend
+
+  promtail:
+    image: grafana/promtail:3.6.5
+    container_name: news-promtail
+    restart: unless-stopped
+    depends_on:
+      - loki
+    command: -config.file=/etc/promtail/promtail-config.yml
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - frontend
+
 volumes:
   db_data:
   wordpress_data:
   prometheus_data:
   grafana_data:
+  loki_data:
 
 networks:
   frontend:
