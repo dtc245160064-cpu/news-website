@@ -30,6 +30,8 @@ services:
     image: wordpress:latest
     container_name: news-wordpress
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       - db
     environment:
@@ -47,6 +49,8 @@ services:
     image: phpmyadmin:latest
     container_name: news-phpmyadmin
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       - db
     environment:
@@ -62,6 +66,8 @@ services:
     image: nginx:alpine
     container_name: news-nginx
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       - wordpress
     ports:
@@ -123,8 +129,6 @@ services:
     container_name: news-loki
     restart: unless-stopped
     command: -config.file=/etc/loki/loki-config.yml
-    ports:
-      - "3100:3100"
     volumes:
       - ./loki/loki-config.yml:/etc/loki/loki-config.yml:ro
       - loki_data:/loki
