@@ -3,3 +3,4 @@
 *.sql
 .DS_Store
 .vscode/
+nginx/ssl/
