@@ -57,6 +57,7 @@ Prometheus --------+
 
 Centralized Logging:
 Docker Containers --> Promtail --> Loki --> Grafana
+```
 
 
 ## 4. Cấu trúc thư mục
