@@ -2,76 +2,50 @@
 
 ## 1. Giới thiệu
 
-Dự án triển khai website tin tức bằng WordPress trên Ubuntu Server, sử dụng Docker Compose để quản lý các dịch vụ.
+Dự án triển khai website tin tức bằng WordPress trên Ubuntu Server, sử dụng Docker Compose để quản lý các dịch vụ. Hệ thống hỗ trợ đăng bài, chỉnh sửa bài viết, quản lý danh mục và lưu trữ dữ liệu trong MySQL.
 
-Website hỗ trợ:
-- Quản trị viên đăng bài viết.
-- Quản lý và chỉnh sửa bài viết.
-- Quản lý danh mục tin tức.
-- Lưu trữ dữ liệu trong MySQL.
-- Quản lý cơ sở dữ liệu qua phpMyAdmin.
-
-Dự án tích hợp Reverse Proxy, Monitoring, Centralized Logging và Hardening.
+Dự án tích hợp Nginx Reverse Proxy, HTTPS, Monitoring, Centralized Logging và Hardening.
 
 ## 2. Công nghệ sử dụng
 
-- Ubuntu Server
-- Docker Engine và Docker Compose
-- WordPress
-- MySQL 8.4
-- phpMyAdmin
-- Nginx Reverse Proxy
-- Prometheus
-- Grafana
-- cAdvisor
-- Nginx Prometheus Exporter
-- MySQL Exporter
-- Loki
-- Promtail
-- Git và GitHub
+Ubuntu Server, Docker Engine, Docker Compose, WordPress, MySQL 8.4, phpMyAdmin, Nginx, Prometheus, Grafana, cAdvisor, Nginx Exporter, MySQL Exporter, Loki, Promtail, Git và GitHub.
 
 ## 3. Kiến trúc hệ thống
 
 ```text
-                  Người dùng
-                      |
-                      v
-                  Nginx :80
-                      |
-                      v
-                   WordPress
-                      |
-                      v
-                    MySQL
-                      ^
-                      |
-                  phpMyAdmin
+Người dùng
+    |
+    v
+Nginx :80 -- HTTP redirect --> HTTPS :443
+                                  |
+                                  v
+                              WordPress
+                                  |
+                                  v
+                                MySQL
 
+phpMyAdmin :8081 --> MySQL
 
 Monitoring:
 cAdvisor ---------+
 Nginx Exporter ----+--> Prometheus --> Grafana
 MySQL Exporter ----+
-Prometheus --------+
-
 
 Centralized Logging:
 Docker Containers --> Promtail --> Loki --> Grafana
 ```
 
-
 ## 4. Cấu trúc thư mục
 
-- compose.yaml: Cấu hình các Docker container.
-- README.md: Tài liệu hướng dẫn dự án.
-- .gitignore: Danh sách file không đưa lên GitHub.
-- .env: Biến môi trường và mật khẩu.
-- nginx/default.conf: Cấu hình Nginx Reverse Proxy.
-- prometheus/prometheus.yml: Cấu hình Prometheus.
-- loki/loki-config.yml: Cấu hình Loki.
-- promtail/promtail-config.yml: Cấu hình Promtail.
-
-File .env không được đưa lên GitHub.
+- `compose.yaml`: cấu hình các Docker container.
+- `README.md`: tài liệu dự án.
+- `.gitignore`: các file không đưa lên GitHub.
+- `.env`: biến môi trường và mật khẩu, không đưa lên GitHub.
+- `nginx/default.conf`: cấu hình Nginx Reverse Proxy và HTTPS.
+- `nginx/ssl/`: chứng chỉ và khóa riêng SSL, không đưa lên GitHub.
+- `prometheus/prometheus.yml`: cấu hình Prometheus.
+- `loki/loki-config.yml`: cấu hình Loki.
+- `promtail/promtail-config.yml`: cấu hình Promtail.
 
 ## 5. Hướng dẫn triển khai
 
@@ -81,195 +55,155 @@ Cài đặt Ubuntu Server, Docker Engine, Docker Compose và Git.
 
 ### Bước 2: Clone repository
 
+```bash
 git clone git@github.com:dtc245160064-cpu/news-website.git
-
 cd news-website
+```
 
-### Bước 3: Tạo file .env
+### Bước 3: Cấu hình môi trường
 
-Các biến môi trường cần thiết:
-
-- MYSQL_ROOT_PASSWORD
-- MYSQL_DATABASE
-- MYSQL_USER
-- MYSQL_PASSWORD
-
-Cần thiết lập mật khẩu riêng trước khi khởi động.
+Tạo file `.env` theo cấu hình yêu cầu của `compose.yaml`. Thiết lập mật khẩu riêng, an toàn trước khi khởi động.
 
 ### Bước 4: Khởi động hệ thống
 
+```bash
 docker compose config --quiet
-
 docker compose pull
-
 docker compose up -d
+docker compose ps
+```
+
+Để bật HTTPS trên máy chủ mới, cần tạo chứng chỉ SSL và khóa riêng phù hợp, đồng thời cấu hình Nginx theo hướng dẫn trong repository.
 
 ### Bước 5: Kiểm tra
 
-docker compose ps
-
+```bash
 curl -I http://localhost
+curl -k -I https://localhost
+curl -I http://localhost:8081
+curl http://localhost:9090/-/ready
+curl -k -I https://localhost:3000/login
+```
 
-Lưu ý: Khi triển khai mới cần hoàn tất cài đặt WordPress và cấu hình Grafana.
+Lưu ý: `-k` chỉ bỏ qua bước xác minh chứng chỉ khi kiểm tra bằng curl; không nên sử dụng như biện pháp bảo mật cho môi trường production.
 
 ## 6. Địa chỉ truy cập
 
-Thay SERVER_IP bằng địa chỉ IP của Ubuntu Server.
+Thay `SERVER_IP` bằng địa chỉ IP của Ubuntu Server.
 
-- Website: http://SERVER_IP
-- WordPress Admin: http://SERVER_IP/wp-admin
-- phpMyAdmin: http://SERVER_IP:8081
-- Prometheus: http://SERVER_IP:9090
-- Grafana: http://SERVER_IP:3000
+- Website: `https://SERVER_IP`
+- WordPress Admin: `https://SERVER_IP/wp-admin`
+- phpMyAdmin: `http://SERVER_IP:8081`
+- Prometheus: `http://SERVER_IP:9090`
+- Grafana: `http://SERVER_IP:3000`
 
-MySQL và Loki không công khai cổng trực tiếp ra host.
+HTTP tại cổng 80 tự động chuyển hướng sang HTTPS. Chứng chỉ hiện tại là chứng chỉ tự ký nên trình duyệt sẽ cảnh báo chưa xác minh được danh tính máy chủ. Chỉ truy cập nếu tin cậy máy chủ của dự án.
+
+Các cổng quản trị và giám sát cần được giới hạn truy cập bằng firewall hoặc mạng quản trị trong môi trường triển khai thực tế.
 
 ## 7. Monitoring với Prometheus và Grafana
 
-Prometheus thu thập metrics từ các thành phần:
+Prometheus thu thập metrics từ Prometheus, cAdvisor, Nginx Exporter và MySQL Exporter. Grafana sử dụng Prometheus Data Source tại `http://prometheus:9090`.
 
-- Prometheus
-- cAdvisor
-- Nginx Exporter
-- MySQL Exporter
-
-Grafana sử dụng Prometheus Data Source:
-
-http://prometheus:9090
-
-Dashboard giám sát gồm 5 panel:
-
-1. Container CPU Usage
-2. Container Memory Usage
-3. Nginx Active Connections
-4. MySQL Active Connections
-5. MySQL Status
+Dashboard giám sát gồm năm panel: Container CPU Usage, Container Memory Usage, Nginx Active Connections, MySQL Active Connections và MySQL Status.
 
 Các truy vấn PromQL:
 
 Container CPU Usage:
 
-    sum by (name) (rate(container_cpu_usage_seconds_total{name!=""}[5m])) * 100
+```promql
+sum by (name) (rate(container_cpu_usage_seconds_total{name!=""}[5m])) * 100
+```
 
 Container Memory Usage:
 
-    sum by (name) (container_memory_usage_bytes{name!=""})
+```promql
+sum by (name) (container_memory_usage_bytes{name!=""})
+```
 
 Nginx Active Connections:
 
-    nginx_connections_active
+```promql
+nginx_connections_active
+```
 
 MySQL Active Connections:
 
-    mysql_global_status_threads_connected
+```promql
+mysql_global_status_threads_connected
+```
 
 MySQL Status:
 
-    mysql_up
+```promql
+mysql_up
+```
 
-Giá trị mysql_up = 1 cho biết MySQL Exporter kết nối được tới MySQL.
+Giá trị `mysql_up = 1` cho biết MySQL Exporter kết nối được tới MySQL.
 
 ## 8. Centralized Logging với Loki và Promtail
 
-Promtail thu thập log từ các Docker container và gửi đến Loki.
+Promtail thu thập log từ các Docker container và gửi đến Loki. Grafana sử dụng Loki Data Source tại `http://loki:3100`.
 
-Grafana sử dụng Loki Data Source:
+Các truy vấn LogQL minh họa:
 
-http://loki:3100
+```logql
+{container="news-nginx"}
+```
 
-Ba truy vấn LogQL minh họa:
+```logql
+{container="news-nginx"} |= "GET"
+```
 
-Truy vấn 1: Xem toàn bộ log Nginx
+```logql
+{container="news-nginx"} |= "error"
+```
 
-    {container="news-nginx"}
-
-Truy vấn 2: Lọc các HTTP GET request
-
-    {container="news-nginx"} |= "GET"
-
-Truy vấn 3: Tìm log chứa từ khóa error
-
-    {container="news-nginx"} |= "error"
-
-Các truy vấn được thực hiện trong Grafana Explore.
-
-Loki sử dụng cổng 3100 trong mạng Docker và không công khai trực tiếp ra host.
+Các truy vấn được thực hiện trong Grafana Explore. Loki sử dụng cổng 3100 trong mạng Docker và không công khai trực tiếp ra host.
 
 ## 9. Hardening và bảo mật
 
-Dự án đã áp dụng các biện pháp bảo mật sau:
+Dự án áp dụng các biện pháp bảo mật cơ bản:
 
-- Không đưa mật khẩu và file .env lên GitHub.
-- MySQL không mở cổng 3306 trực tiếp ra host.
-- Tách Docker network thành frontend và backend.
-- Backend network được cấu hình internal.
-- Loki không công khai cổng 3100 ra host.
-- Nginx Reverse Proxy sử dụng HTTP Security Headers.
-- WordPress, Nginx và phpMyAdmin bật no-new-privileges.
+- Không đưa mật khẩu và file `.env` lên GitHub.
+- Không công khai cổng MySQL 3306 trực tiếp ra host.
+- Tách Docker network frontend và backend.
+- Cấu hình backend network ở chế độ internal.
+- Không công khai cổng Loki 3100 ra host.
+- Sử dụng Nginx Reverse Proxy và HTTPS.
+- Thiết lập các HTTP Security Headers.
+- Sử dụng `no-new-privileges` cho các container đã cấu hình.
 - MySQL Exporter sử dụng tài khoản giám sát có quyền giới hạn.
+- Chứng chỉ và khóa riêng SSL được loại trừ khỏi Git.
 
-Các Security Headers đã kiểm tra:
+Các Security Headers:
 
-- X-Frame-Options: SAMEORIGIN
-- X-Content-Type-Options: nosniff
-- Referrer-Policy: strict-origin-when-cross-origin
+- `X-Frame-Options: SAMEORIGIN`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
 
-Lưu ý: no-new-privileges không đồng nghĩa với việc container
-đã chạy bằng người dùng non-root.
-
-Môi trường production cần bổ sung HTTPS, quản lý secrets,
-giới hạn truy cập quản trị và chính sách sao lưu dữ liệu.
+`no-new-privileges` không đồng nghĩa với việc container chạy bằng người dùng non-root. Chứng chỉ tự ký phù hợp cho môi trường học tập, nhưng production nên sử dụng chứng chỉ được CA tin cậy cấp, quản lý secrets an toàn và giới hạn truy cập các trang quản trị.
 
 ## 10. Kiểm tra hệ thống
 
-Kiểm tra trạng thái container:
-
-    docker compose ps
-
-Kiểm tra cấu hình Docker Compose:
-
-    docker compose config --quiet
-
-Kiểm tra website:
-
-    curl -I http://localhost
-
-Kiểm tra phpMyAdmin:
-
-    curl -I http://localhost:8081
-
-Kiểm tra Prometheus:
-
-    curl http://localhost:9090/-/ready
-
-Kiểm tra Grafana:
-
-    curl -I http://localhost:3000/login
+```bash
+docker compose ps
+docker compose config --quiet
+curl -I http://localhost
+curl -k -I https://localhost
+curl -I http://localhost:8081
+curl http://localhost:9090/-/ready
+curl -I http://localhost:3000/login
+```
 
 ## 11. Quản lý mã nguồn bằng GitHub
 
-Repository:
+Repository: https://github.com/dtc245160064-cpu/news-website
 
-https://github.com/dtc245160064-cpu/news-website
-
-Các nhóm công việc đã được commit:
-
-1. Triển khai WordPress, MySQL và phpMyAdmin.
-2. Cấu hình Nginx Reverse Proxy và Security Headers.
-3. Triển khai Prometheus, Grafana và Monitoring.
-4. Triển khai Loki, Promtail và Centralized Logging.
-5. Hardening, cách ly Loki và giới hạn đặc quyền container.
+Các nhóm công việc đã được commit gồm triển khai WordPress, MySQL và phpMyAdmin; cấu hình Nginx Reverse Proxy và Security Headers; triển khai Prometheus, Grafana và Monitoring; triển khai Loki, Promtail và Centralized Logging; Hardening; và bật HTTPS.
 
 ## 12. Kết luận
 
-Dự án đã triển khai website tin tức ICTU bằng WordPress
-trên Ubuntu Server với Docker Compose.
+Dự án triển khai website tin tức ICTU trên Ubuntu Server bằng Docker Compose. Hệ thống tích hợp WordPress, MySQL, phpMyAdmin, Nginx Reverse Proxy, HTTPS, Prometheus, Grafana, Loki và Promtail.
 
-Hệ thống tích hợp MySQL, phpMyAdmin, Nginx Reverse Proxy,
-Prometheus, Grafana, Loki và Promtail.
-
-Các dịch vụ chính đã được kiểm tra hoạt động và hệ thống
-đã áp dụng các biện pháp Hardening cơ bản.
-
-Dự án phục vụ mục đích học tập và thực hành triển khai
-ứng dụng, giám sát hệ thống, quản lý log và bảo mật.
+Dự án phục vụ mục đích học tập và thực hành triển khai ứng dụng, giám sát hệ thống, quản lý log và bảo mật cơ bản.
