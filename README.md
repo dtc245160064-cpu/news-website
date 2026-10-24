@@ -258,3 +258,14 @@ Dashboard gom 8 panel:
 - Khong dua .env, khoa SSL hoac database backup len GitHub.
 - Dung SSH tunnel de truy cap Grafana, Prometheus va phpMyAdmin.
 - Khong chay docker compose down -v.
+### Tao chung chi HTTPS cho may chu moi
+
+Tao thu muc nginx/ssl, sau do tao server.crt va server.key.
+Dung openssl req voi subjectAltName la IP cua may chu.
+Dat quyen 600 cho server.key va khong commit khoa SSL.
+Chung chi tu ky chi phu hop moi truong hoc tap.
+
+### MySQL Healthcheck
+
+Docker Compose kiem tra MySQL bang mysqladmin ping.
+WordPress cho MySQL healthy khi khoi tao qua Compose.
