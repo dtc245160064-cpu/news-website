@@ -1,0 +1,251 @@
+{
+  "id": null,
+  "uid": "ictu-devops-monitor",
+  "title": "ICTU News - DevOps Monitoring",
+  "tags": [
+    "ICTU",
+    "DevOps",
+    "Docker"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 41,
+  "version": 0,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Docker CPU Usage",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffzt0fsna0uf4a"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (name) (rate(container_cpu_usage_seconds_total{image!=\"\"}[5m]))",
+          "legendFormat": "{{name}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 2,
+      "title": "Docker RAM Usage",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffzt0fsna0uf4a"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (name) (container_memory_working_set_bytes{image!=\"\"})",
+          "legendFormat": "{{name}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 3,
+      "title": "Docker Container Count",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffzt0fsna0uf4a"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(count by (name) (container_last_seen{image!=\"\"}))",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 4,
+      "title": "Nginx Requests per Second",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffzt0fsna0uf4a"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(nginx_http_requests_total[5m]))",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 5,
+      "title": "MySQL Connections",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffzt0fsna0uf4a"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "mysql_global_status_threads_connected",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 6,
+      "title": "MySQL Status",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffzt0fsna0uf4a"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "mysql_up",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 7,
+      "title": "Prometheus Targets",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffzt0fsna0uf4a"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "up",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 8,
+      "title": "Nginx Logs",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "efzwgjxbn3xmob"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{container=\"news-nginx\"}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    }
+  ]
+}

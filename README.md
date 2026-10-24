@@ -207,3 +207,46 @@ Các nhóm công việc đã được commit gồm triển khai WordPress, MySQL
 Dự án triển khai website tin tức ICTU trên Ubuntu Server bằng Docker Compose. Hệ thống tích hợp WordPress, MySQL, phpMyAdmin, Nginx Reverse Proxy, HTTPS, Prometheus, Grafana, Loki và Promtail.
 
 Dự án phục vụ mục đích học tập và thực hành triển khai ứng dụng, giám sát hệ thống, quản lý log và bảo mật cơ bản.
+## 13. Ket qua trien khai va kiem thu (10/2026)
+
+### WordPress ICTU News
+
+- Theme: wp-theme/ictu-news/
+- Trang chu: index.php
+- Trang chi tiet bai viet: single.php
+- CSS: style.css va functions.php
+- Da kiem thu them, sua va xoa bai viet.
+- Co 3 bai viet xuat ban va 4 danh muc.
+
+### Grafana Dashboard
+
+Dashboard: ICTU News - DevOps Monitoring
+
+File: grafana/dashboards/ictu-monitoring.json
+
+Dashboard gom 8 panel:
+- Docker CPU Usage
+- Docker RAM Usage
+- Docker Container Count
+- Nginx Requests per Second
+- MySQL Connections
+- MySQL Status
+- Prometheus Targets
+- Nginx Logs
+
+### Bao mat
+
+- HTTPS voi chung chi tu ky.
+- HTTP tu dong chuyen huong HTTPS.
+- Firewall UFW da kich hoat.
+- Grafana, Prometheus va phpMyAdmin chi mo qua localhost.
+- Quan tri tu Windows bang SSH Tunnel.
+- Khong commit .env, database backup va SSL private key.
+
+### Luu tru du lieu
+
+- MySQL su dung Docker named volume.
+- WordPress su dung Docker named volume.
+- Da sao luu 12 bang MySQL bang mysqldump.
+- Sau khi restart MySQL va WordPress, 3 bai viet van ton tai.
+- Dashboard Grafana duoc luu va co the import bang JSON.

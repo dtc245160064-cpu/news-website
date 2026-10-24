@@ -4,3 +4,15 @@
 .DS_Store
 .vscode/
 nginx/ssl/
+backups/
+*.db
+*.sqlite
+*.sqlite3
+*.pem
+*.key
+
+# Unused WordPress theme copies
+/wp-theme/index.php
+/wp-theme/style.css
+/wp-theme/theme.json
+/wp-theme/ictu-news-backup-*/
