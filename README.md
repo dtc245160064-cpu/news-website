@@ -82,7 +82,7 @@ curl -I http://localhost
 curl -k -I https://localhost
 curl -I http://localhost:8081
 curl http://localhost:9090/-/ready
-curl -k -I https://localhost:3000/login
+curl -I http://127.0.0.1:3000/login
 ```
 
 Lưu ý: `-k` chỉ bỏ qua bước xác minh chứng chỉ khi kiểm tra bằng curl; không nên sử dụng như biện pháp bảo mật cho môi trường production.
@@ -93,9 +93,9 @@ Thay `SERVER_IP` bằng địa chỉ IP của Ubuntu Server.
 
 - Website: `https://SERVER_IP`
 - WordPress Admin: `https://SERVER_IP/wp-admin`
-- phpMyAdmin: `http://SERVER_IP:8081`
-- Prometheus: `http://SERVER_IP:9090`
-- Grafana: `http://SERVER_IP:3000`
+- phpMyAdmin: `http://127.0.0.1:8081`
+- Prometheus: `http://127.0.0.1:9090`
+- Grafana: `http://127.0.0.1:3000`
 
 HTTP tại cổng 80 tự động chuyển hướng sang HTTPS. Chứng chỉ hiện tại là chứng chỉ tự ký nên trình duyệt sẽ cảnh báo chưa xác minh được danh tính máy chủ. Chỉ truy cập nếu tin cậy máy chủ của dự án.
 
@@ -250,3 +250,11 @@ Dashboard gom 8 panel:
 - Da sao luu 12 bang MySQL bang mysqldump.
 - Sau khi restart MySQL va WordPress, 3 bai viet van ton tai.
 - Dashboard Grafana duoc luu va co the import bang JSON.
+
+## 14. Trien khai tren may chu moi
+
+- Sao chep .env.example thanh .env va thay cac mat khau mau.
+- Tao chung chi SSL server.crt va server.key trong nginx/ssl/ truoc khi khoi dong Nginx.
+- Khong dua .env, khoa SSL hoac database backup len GitHub.
+- Dung SSH tunnel de truy cap Grafana, Prometheus va phpMyAdmin.
+- Khong chay docker compose down -v.
